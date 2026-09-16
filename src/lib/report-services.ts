@@ -71,23 +71,15 @@ let schemaMigrationRun = false;
 export async function ensureReportsSchema(): Promise<void> {
   if (schemaMigrationRun) return;
   try {
-    // 1. Pastikan kolom processed_at ada
+    // 1. Pastikan kolom processed_at ada (sintaks murni MySQL)
     await db.$executeRawUnsafe(
-      `ALTER TABLE reports ADD COLUMN IF NOT EXISTS processed_at DATETIME(3) DEFAULT NULL AFTER penanganan`
-    ).catch(async () => {
-      await db.$executeRawUnsafe(
-        `ALTER TABLE reports ADD COLUMN processed_at DATETIME(3) DEFAULT NULL AFTER penanganan`
-      ).catch(() => {});
-    });
+      `ALTER TABLE reports ADD COLUMN processed_at DATETIME(3) DEFAULT NULL AFTER penanganan`
+    ).catch(() => {});
 
-    // 2. Pastikan kolom completed_at ada
+    // 2. Pastikan kolom completed_at ada (sintaks murni MySQL)
     await db.$executeRawUnsafe(
-      `ALTER TABLE reports ADD COLUMN IF NOT EXISTS completed_at DATETIME(3) DEFAULT NULL AFTER processed_at`
-    ).catch(async () => {
-      await db.$executeRawUnsafe(
-        `ALTER TABLE reports ADD COLUMN completed_at DATETIME(3) DEFAULT NULL AFTER processed_at`
-      ).catch(() => {});
-    });
+      `ALTER TABLE reports ADD COLUMN completed_at DATETIME(3) DEFAULT NULL AFTER processed_at`
+    ).catch(() => {});
 
     schemaMigrationRun = true;
   } catch {
