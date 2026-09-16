@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,6 +72,14 @@ export function LoginForm() {
     },
   });
 
+  // Otomatis arahkan kursor (auto focus) ke input username saat halaman terbuka
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      form.setFocus("username");
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [form]);
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
     try {
@@ -134,6 +142,7 @@ export function LoginForm() {
                 </FormLabel>
                 <FormControl>
                   <Input
+                    autoFocus
                     type="text"
                     placeholder="Masukkan username admin"
                     autoComplete="username"
@@ -169,6 +178,7 @@ export function LoginForm() {
                       type="button"
                       variant="ghost"
                       size="icon"
+                      tabIndex={-1}
                       className="absolute right-1 top-1 h-8 w-8 hover:bg-sky-50 text-slate-400 hover:text-sky-700 rounded-lg cursor-pointer"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
