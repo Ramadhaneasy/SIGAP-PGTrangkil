@@ -60,12 +60,14 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Salin aset publik (gambar, icon, dll.)
-COPY --from=builder /app/public ./public
+# Salin aset publik (gambar, icon, dll.) dengan kepemilikan user nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+RUN chmod -R 755 ./public
 
 # Setup direktori cache .next dengan hak akses user nextjs
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
+RUN chmod -R 755 .next
 
 # Salin output standalone dan aset statis Next.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
