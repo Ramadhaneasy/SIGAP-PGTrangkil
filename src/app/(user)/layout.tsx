@@ -27,7 +27,7 @@ export default function UserLayout({
     <div className="min-h-screen flex flex-col bg-slate-50/60 text-slate-800 antialiased selection:bg-sky-500/20 selection:text-sky-700 relative overflow-x-hidden">
       {/* Subtle Corporate Ambient Background Grid */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-sky-100/30 to-transparent blur-3xl" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-linear-to-b from-sky-100/30 to-transparent blur-3xl" />
         <div className="absolute inset-0 bg-dot-pattern opacity-20" />
       </div>
 
@@ -36,7 +36,7 @@ export default function UserLayout({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
           {/* Logo PT Kebon Agung Pabrik Gula Trangkil */}
           <Link href="/" className="flex items-center gap-2.5 shrink-0 group py-1">
-            <div className="relative h-8 sm:h-11 w-auto max-w-[200px] sm:max-w-[290px] flex items-center transition-transform group-hover:scale-[1.01]">
+            <div className="relative h-8 sm:h-11 w-auto max-w-50 sm:max-w-72.5 flex items-center transition-transform group-hover:scale-[1.01]">
               <Image
                 src="/assets/images/logo-pg-trangkil.png"
                 alt="Logo PT Kebon Agung Pabrik Gula Trangkil"
