@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LockKeyhole, Wrench, Search, Building, Menu, Home } from "lucide-react";
+import { LockKeyhole, Wrench, Search, Menu, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { UserDockbar } from "@/components/mobile/user-dockbar";
@@ -163,20 +163,9 @@ export default function UserLayout({
       <UserDockbar />
 
       {/* Footer Minimalis Corporate */}
-      <footer className="relative z-10 border-t border-slate-200/80 py-6 pb-24 md:pb-6 bg-white text-slate-600 text-xs">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-          <div className="flex items-center gap-3 flex-wrap justify-center">
-            <div className="flex items-center gap-2 font-bold text-slate-800">
-              <Building className="h-4 w-4 text-sky-600" />
-              <span>PT Kebon Agung &bull; Pabrik Gula Trangkil</span>
-            </div>
-            <span className="hidden md:inline text-slate-300">|</span>
-            <div className="flex items-center gap-1.5 text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80 text-[11px]">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Sistem SIGAP Online</span>
-            </div>
-          </div>
-          <p className="text-slate-400 font-medium text-[11px]">
+      <footer className="relative z-10 border-t border-slate-200/80 py-5 pb-24 md:pb-5 bg-white text-slate-600 text-xs">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-start text-left">
+          <p className="text-slate-500 font-medium text-xs sm:text-[11px]">
             &copy; {new Date().getFullYear()} SIGAP &bull; PT Kebon Agung PG Trangkil. All rights reserved.
           </p>
         </div>
