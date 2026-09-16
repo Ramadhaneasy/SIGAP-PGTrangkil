@@ -4,8 +4,6 @@
 # Docker Compose Configuration File
 # =========================================================
 
-version: "3.8"
-
 services:
   # -------------------------------------------------------
   # Service 1: Database MySQL 8.0
