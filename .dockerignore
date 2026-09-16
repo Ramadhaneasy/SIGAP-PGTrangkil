@@ -1,0 +1,38 @@
+# Dependencies & build cache
+node_modules
+.next
+.next/cache
+.turbo
+*.tsbuildinfo
+
+# Version control & IDE
+.git
+.gitignore
+.vscode
+.idea
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Documentation & Archive assets
+*.zip
+*.pdf
+*.txt
+README.md
+STYLE_GUIDE.md
+PANDUAN_*.md
+CLAUDE.md
+AGENTS.md
+
+# Database dumps (mounted directly in docker-compose, no need to bake into app image)
+*.sql

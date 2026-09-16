@@ -1,0 +1,64 @@
+// Prisma Schema for SIGAP Application (MySQL Database)
+// PT Kebon Agung Pabrik Gula Trangkil
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Report {
+  id               String   @id @default(uuid()) @db.VarChar(36)
+  ticket_number    String   @unique(map: "reports_ticket_number_unique") @db.VarChar(50)
+  nama_pelapor     String   @db.VarChar(150)
+  bagian           String   @db.VarChar(100)
+  unit_kerja       String   @db.VarChar(150)
+  nomor_hp         String?  @db.VarChar(30)
+  lokasi_kerusakan String   @db.VarChar(255)
+  deskripsi        String   @db.Text
+  foto_url         String?  @db.LongText
+  status           String   @default("MENUNGGU") @db.VarChar(20)
+  penanganan       String?  @db.Text
+  processed_at     DateTime?
+  completed_at     DateTime?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@index([status], map: "idx_reports_status")
+  @@index([created_at], map: "idx_reports_created_at")
+  @@map("reports")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  waktu     DateTime @default(now())
+  admin     String   @db.VarChar(100)
+  role      String   @default("SUPER_ADMIN") @db.VarChar(50)
+  aktivitas String   @db.VarChar(100)
+  target    String   @db.VarChar(100)
+  deskripsi String   @db.Text
+
+  @@index([waktu], map: "idx_logs_waktu")
+  @@index([aktivitas], map: "idx_logs_aktivitas")
+  @@map("activity_logs")
+}
+
+model AdminUser {
+  id            String    @id @default(uuid()) @db.VarChar(36)
+  username      String    @unique(map: "admin_users_username_unique") @db.VarChar(50)
+  password      String    @db.VarChar(255)
+  nama          String    @db.VarChar(150)
+  role          String    @default("ADMIN") @db.VarChar(50)
+  is_banned     Boolean   @default(false)
+  banned_until  DateTime?
+  banned_reason String?   @db.Text
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([role], map: "idx_admin_role")
+  @@map("admin_users")
+}
