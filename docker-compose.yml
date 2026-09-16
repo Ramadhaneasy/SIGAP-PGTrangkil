@@ -23,8 +23,8 @@ services:
       MYSQL_DATABASE: sigap_db
       MYSQL_USER: sigap_user
       MYSQL_PASSWORD: sigap_password_2026
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     volumes:
       # Data persisten MySQL agar tidak hilang saat container dimatikan
       - sigap_mysql_data:/var/lib/mysql
@@ -49,12 +49,12 @@ services:
     container_name: sigap-app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
-      # Koneksi ke container database MySQL (host 'db', port 3306)
-      - DATABASE_URL=mysql://sigap_user:sigap_password_2026@db:3306/sigap_db
-      - JWT_SECRET=sigap_pg_trangkil_super_secret_key_2026
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      # Koneksi database: prioritaskan .env, fallback ke container 'db'
+      - DATABASE_URL=${DATABASE_URL:-mysql://sigap_user:sigap_password_2026@db:3306/sigap_db}
+      - JWT_SECRET=${JWT_SECRET:-sigap-pg-trangkil-secret-jwt-key-2026}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3002}
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
@@ -72,7 +72,7 @@ services:
     container_name: sigap-pma
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8083:80"
     environment:
       - PMA_HOST=db
       - PMA_PORT=3306
