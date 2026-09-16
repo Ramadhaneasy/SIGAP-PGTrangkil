@@ -66,9 +66,58 @@ function mapReportRow(row: RawReportRow): ReportRecord {
 }
 
 
+let schemaMigrationRun = false;
+
+export async function ensureReportsSchema(): Promise<void> {
+  if (schemaMigrationRun) return;
+  try {
+    // 1. Pastikan kolom processed_at ada
+    await db.$executeRawUnsafe(
+      `ALTER TABLE reports ADD COLUMN IF NOT EXISTS processed_at DATETIME(3) DEFAULT NULL AFTER penanganan`
+    ).catch(async () => {
+      await db.$executeRawUnsafe(
+        `ALTER TABLE reports ADD COLUMN processed_at DATETIME(3) DEFAULT NULL AFTER penanganan`
+      ).catch(() => {});
+    });
+
+    // 2. Pastikan kolom completed_at ada
+    await db.$executeRawUnsafe(
+      `ALTER TABLE reports ADD COLUMN IF NOT EXISTS completed_at DATETIME(3) DEFAULT NULL AFTER processed_at`
+    ).catch(async () => {
+      await db.$executeRawUnsafe(
+        `ALTER TABLE reports ADD COLUMN completed_at DATETIME(3) DEFAULT NULL AFTER processed_at`
+      ).catch(() => {});
+    });
+
+    schemaMigrationRun = true;
+  } catch {
+    schemaMigrationRun = true;
+  }
+}
+
+async function queryReportsSafely(
+  baseQuery: string,
+  ...params: unknown[]
+): Promise<RawReportRow[]> {
+  await ensureReportsSchema();
+  try {
+    return await db.$queryRawUnsafe<RawReportRow[]>(baseQuery, ...params);
+  } catch (err: unknown) {
+    const errMessage = String(err);
+    if (errMessage.includes("1054") || errMessage.includes("Unknown column")) {
+      console.warn("Retrying reports query with NULL fallback for processed_at / completed_at...");
+      const fallbackQuery = baseQuery
+        .replace("processed_at,", "NULL AS processed_at,")
+        .replace("completed_at,", "NULL AS completed_at,");
+      return await db.$queryRawUnsafe<RawReportRow[]>(fallbackQuery, ...params);
+    }
+    throw err;
+  }
+}
+
 export async function getAllReports(): Promise<ReportRecord[]> {
   try {
-    const rows = await db.$queryRawUnsafe<RawReportRow[]>(
+    const rows = await queryReportsSafely(
       `SELECT id, ticket_number, nama_pelapor, bagian, unit_kerja, nomor_hp, lokasi_kerusakan, deskripsi, foto_url, status, penanganan, processed_at, completed_at, created_at, updated_at FROM reports ORDER BY created_at DESC`
     );
     return (rows || []).map(mapReportRow);
@@ -80,7 +129,7 @@ export async function getAllReports(): Promise<ReportRecord[]> {
 
 export async function getActiveReports(): Promise<ReportRecord[]> {
   try {
-    const rows = await db.$queryRawUnsafe<RawReportRow[]>(
+    const rows = await queryReportsSafely(
       `SELECT id, ticket_number, nama_pelapor, bagian, unit_kerja, nomor_hp, lokasi_kerusakan, deskripsi, foto_url, status, penanganan, processed_at, completed_at, created_at, updated_at FROM reports WHERE status IN ('MENUNGGU', 'DIPROSES') ORDER BY created_at DESC`
     );
     return (rows || []).map(mapReportRow);
@@ -92,7 +141,7 @@ export async function getActiveReports(): Promise<ReportRecord[]> {
 
 export async function getReportByTicket(ticketNumber: string): Promise<ReportRecord | null> {
   try {
-    const rows = await db.$queryRawUnsafe<RawReportRow[]>(
+    const rows = await queryReportsSafely(
       `SELECT id, ticket_number, nama_pelapor, bagian, unit_kerja, nomor_hp, lokasi_kerusakan, deskripsi, foto_url, status, penanganan, processed_at, completed_at, created_at, updated_at FROM reports WHERE ticket_number = ? LIMIT 1`,
       ticketNumber
     );
@@ -105,7 +154,7 @@ export async function getReportByTicket(ticketNumber: string): Promise<ReportRec
 
 export async function getReportById(id: string): Promise<ReportRecord | null> {
   try {
-    const rows = await db.$queryRawUnsafe<RawReportRow[]>(
+    const rows = await queryReportsSafely(
       `SELECT id, ticket_number, nama_pelapor, bagian, unit_kerja, nomor_hp, lokasi_kerusakan, deskripsi, foto_url, status, penanganan, processed_at, completed_at, created_at, updated_at FROM reports WHERE id = ? OR ticket_number = ? LIMIT 1`,
       id,
       id
@@ -119,7 +168,7 @@ export async function getReportById(id: string): Promise<ReportRecord | null> {
 
 export async function getCompletedReports(): Promise<ReportRecord[]> {
   try {
-    const rows = await db.$queryRawUnsafe<RawReportRow[]>(
+    const rows = await queryReportsSafely(
       `SELECT id, ticket_number, nama_pelapor, bagian, unit_kerja, nomor_hp, lokasi_kerusakan, deskripsi, foto_url, status, penanganan, processed_at, completed_at, created_at, updated_at FROM reports WHERE status = 'SELESAI' ORDER BY updated_at DESC`
     );
     return (rows || []).map(mapReportRow);
@@ -193,6 +242,7 @@ export async function createReport(data: {
   deskripsi: string;
   foto_url?: string | null;
 }) {
+  await ensureReportsSchema();
   const now = new Date();
 
   const maxAttempts = 10;
@@ -258,6 +308,7 @@ export async function updateReportStatus(
   adminName = "Admin SIGAP",
   penanganan?: string | null
 ) {
+  await ensureReportsSchema();
   try {
     const now = new Date();
 
