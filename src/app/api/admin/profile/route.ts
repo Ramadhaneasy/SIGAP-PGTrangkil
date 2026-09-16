@@ -159,9 +159,14 @@ export async function PUT(request: Request) {
       },
     });
 
+    const isHttps =
+      request.headers.get("x-forwarded-proto") === "https" ||
+      request.url.startsWith("https://") ||
+      process.env.COOKIE_SECURE === "true";
+
     response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       sameSite: "lax",
       maxAge: 60 * 60 * 24,
       path: "/",

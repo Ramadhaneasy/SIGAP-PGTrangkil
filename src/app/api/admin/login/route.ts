@@ -167,10 +167,15 @@ export async function POST(request: Request) {
       },
     });
 
-    // 8. Set Secure HTTP-Only Cookie
+    // 8. Set HTTP-Only Cookie (Secure hanya aktif saat diakses via HTTPS)
+    const isHttps =
+      request.headers.get("x-forwarded-proto") === "https" ||
+      request.url.startsWith("https://") ||
+      process.env.COOKIE_SECURE === "true";
+
     response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       sameSite: "lax",
       maxAge: 60 * 60 * 24, // 24 hours
       path: "/",

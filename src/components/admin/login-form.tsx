@@ -104,10 +104,12 @@ export function LoginForm() {
       }
 
       toast.success("Berhasil masuk ke SIGAP Panel Admin", {
-        description: `Selamat datang, ${resData.user?.nama || data.username}.`,
+        description: `Selamat datang, ${resData.user?.nama || data.username}. Mengalihkan ke dashboard...`,
       });
-      router.push("/admin/dashboard");
-      router.refresh();
+      // Gunakan navigasi browser penuh agar cookie sesi langsung terbaca oleh layout server
+      setTimeout(() => {
+        window.location.href = "/admin/dashboard";
+      }, 400);
     } catch (err) {
       console.error("Auth error:", err);
       toast.error("Terjadi kesalahan sistem saat mencoba masuk.");
